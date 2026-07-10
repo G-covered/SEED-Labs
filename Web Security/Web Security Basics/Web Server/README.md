@@ -47,7 +47,7 @@ The backend returns data payload alongside critical protocol metadata:
 * **HTTP Status Code:** Indicates the result of the request (e.g., `200 OK`, `404 Not Found`).
 * **Response Headers:** Metadata sent back to the browser. 
 
-> 🔒 **Security Impact:** Response headers are highly critical for web security. They allow the server to explicitly dictate security instructions to the browser sandbox (e.g., enforcing `Content-Security-Policy`, `X-Frame-Options`, or cookie security attributes).
+>  **Security Impact:** Response headers are highly critical for web security. They allow the server to explicitly dictate security instructions to the browser sandbox (e.g., enforcing `Content-Security-Policy`, `X-Frame-Options`, or cookie security attributes).
 
 ---
 
