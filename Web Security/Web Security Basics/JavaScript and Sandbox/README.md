@@ -47,7 +47,7 @@ Things get trickier when a page contains an `iframe` (an embedded HTML document 
 *   Can a child iframe access its parent?
 *   Can sibling iframes interact with each other?
 
-> 💡 **Security Connection:** These specific boundary questions form the baseline mechanics for **Clickjacking** attacks, which rely heavily on manipulating nested iframes. Without iframes, DOM security is simple: one isolated tree per page.
+>  **Security Connection:** These specific boundary questions form the baseline mechanics for **Clickjacking** attacks, which rely heavily on manipulating nested iframes. Without iframes, DOM security is simple: one isolated tree per page.
 
 ### HTML Objects Examples
 Beyond directly manipulating the DOM tree, scripts can interact with specific built-in page objects:
