@@ -25,4 +25,4 @@ Historically, dynamic content was introduced to allow platforms to animate and a
 *   ActiveX
 *   Java applets
 
-> ⚠️ **Security Takeaway:** These platforms relied heavily on the risky binary plug-in model, introducing massive security holes. Thanks to modern, native browser capabilities, these legacy third-party platforms are no longer necessary and have been completely phased out.
+>  **Security Takeaway:** These platforms relied heavily on the risky binary plug-in model, introducing massive security holes. Thanks to modern, native browser capabilities, these legacy third-party platforms are no longer necessary and have been completely phased out.
