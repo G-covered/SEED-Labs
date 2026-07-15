@@ -21,7 +21,7 @@ Client-side JavaScript code interacts with the backend server scripts using thre
 
 ### 1. Standard HTTP Requests
 * Triggered by standard browser actions (like clicking a link or submitting a basic HTML form).
-* **Behavior:** The data returned by the server is **not** handed back to the executing JavaScript. Instead, the browser intercepts the response and uses it to render an entirely new page—either replacing the current page in the **same tab** or opening it in a **separate tab**.
+* **Behavior:** The data returned by the server is **not** handed back to the executing JavaScript. Instead, the browser intercepts the response and uses it to render an entirely new page. Either replacing the current page in the **same tab** or opening it in a **separate tab**.
 
 ### 2. AJAX Requests (Asynchronous JavaScript and XML)
 * Triggered programmatically via APIs like `fetch()` or `XMLHttpRequest`.
