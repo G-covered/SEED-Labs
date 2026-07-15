@@ -15,7 +15,7 @@ In online shopping, a transaction requires multiple distinct requests (browsing 
 
 ## Cookies
 
-Because web browsing is unpredictable—a user might make their next request in one second or one day—servers cannot afford to keep dedicated processes open for single users. To scale and serve millions of users simultaneously, the server offloads the burden of maintaining state to the client.
+Because web browsing is unpredictable, a user might make their next request in one second or one day. Servers cannot afford to keep dedicated processes open for single users. To scale and serve millions of users simultaneously, the server offloads the burden of maintaining state to the client.
 
 Essentially, the server tells the browser: *"I am not going to remember who you are, so I am handing this piece of data to you to hold onto."* This data is a **cookie**. The browser stores it locally and automatically attaches it to every subsequent request sent back to that same server, allowing the backend to reconstruct the user's session state.
 
