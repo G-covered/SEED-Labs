@@ -33,7 +33,7 @@ The browser sandbox evaluates and enforces security policies across five distinc
 ### JavaScript Accessing Page Contents
 <img width="396" height="479" alt="image" src="https://github.com/user-attachments/assets/745dfa57-958a-423c-97a6-515c85e9070d" />
 
-When a browser renders a web page, it parses the HTML to construct the **Document Object Model (DOM)**—a hierarchical tree structure where every element is a node. 
+When a browser renders a web page, it parses the HTML to construct the **Document Object Model (DOM)**. A hierarchical tree structure where every element is a node. 
 
 The browser exposes APIs that allow JavaScript to query and alter this tree:
 *   **Finding Nodes:** Methods like `document.getElementById()` allow JavaScript to locate a specific node.
@@ -62,7 +62,7 @@ Beyond directly manipulating the DOM tree, scripts can interact with specific bu
 While JavaScript is entitled to read data that came directly from the web server, it is *not* entitled to read private user data stored inside the browser itself. Browsers enforce strict access controls using the global `window` object:
 
 *   `window.history` — Contains the user's browsing path. To preserve privacy, JavaScript cannot read the actual URLs inside your history; it is only allowed to trigger actions like the `.back()` and `.forward()` APIs.
-*   `window.navigator` — Contains state information about the browser and user device, including geographic location. Because location data is highly sensitive, the browser's sandbox blocks scripts from accessing it automatically—instead, it prompts the user to explicitly grant or deny permission.
+*   `window.navigator` — Contains state information about the browser and user device, including geographic location. Because location data is highly sensitive, the browser's sandbox blocks scripts from accessing it automatically. Instead, it prompts the user to explicitly grant or deny permission.
 
 ### Accessing Local Files
 <img width="373" height="329" alt="image" src="https://github.com/user-attachments/assets/aa33392c-fccf-4d38-ab4d-2d97ed902126" />
