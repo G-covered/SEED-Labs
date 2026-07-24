@@ -1,42 +1,132 @@
-## Attack on GET Service
+# Attacking GET Services
 
-GET vs POST
-There are two typical HTTP requests. One is a GET request and the other is POST request. The main difference here with regaurding CSRF attack is will the data be attached. 
+## GET vs. POST Requests
 
-<img width="340" height="65" alt="image" src="https://github.com/user-attachments/assets/d73dcc77-f97f-4fbb-a6b7-7b2a28f8b1fd" />
-When you send the GET request, the data is attached in the URL. The URL is with the question mark and after that is the data that is usually value pair and seperated by the ampersands sign. 
-Example: foo=hello&bar=world which has two arguments attached to the request.
+HTTP primarily uses two request methods:
 
-<img width="297" height="121" alt="image" src="https://github.com/user-attachments/assets/22cc38ae-f61a-47d4-9c9c-0c5f86b2033b" />
-For the POST request, the data is acuallty not attached in the URL. THe data is in the body section in the HTTP request.
-POST request doesn't have the question mark. Then there's the header. Then the data attached to the POST request.
+- **GET**
+- **POST**
 
-These differences make the attack different. 
-For the GET request, because everything is attached to the URL, it is easier to launch the attack against the GET service.
+From a CSRF perspective, the biggest difference is **where the request data is stored**.
 
-<img width="445" height="208" alt="image" src="https://github.com/user-attachments/assets/425bb6cb-bcaf-4544-8444-db6fa9ba16c2" />
+### GET Requests
 
-When HTML elements like img or iframe are placed inside a page, when the browser sees the image tag, it will immdiately initiate a GET request and the URL and the argument is specified by the page.
+![GET Request Format](https://github.com/user-attachments/assets/d73dcc77-f97f-4fbb-a6b7-7b2a28f8b1fd)
 
-## The Add-Friend HTTP Request
+With a **GET** request, the request parameters are included directly in the URL after a question mark (`?`).
 
-We will host a website and the target website we are using is from open source project. They did a good job preventing this attack, but we will turn off the countermeasures in the source code. This will gave us the opportunity to launch this attack without contermeasures.
+For example:
 
-<img width="364" height="264" alt="image" src="https://github.com/user-attachments/assets/b0b554a5-2fae-44e8-a340-a4d79e912465" />
+```text
+http://example.com/page?foo=hello&bar=world
+```
 
+Here:
 
-We have many users in this social network site. For the attack, our job is to add ourselves to a victim's friend list without their consent. To add friend list, Alice can add Boby which will trigger HTTP GET request. With all the parameters attached, if Alice can do that in front of her computer, what will prevent the attackers from doing that from Alice computer.
-All we need is for Alice to vist this malicious Website. Once the code is on Alice machine, whatever that can be done manually, can be done automatically using the program. Now we can send the request, except our request is cross-site request versus the same-site request. Since the server won't tell the difference, the attack will be successful.
-The key challenge here is to find out what request sends out when you click the button. We need to follow the same format, URL, and the agrument. We will inspect the request that sends out from our computer.
+- `foo=hello`
+- `bar=world`
 
-<img width="471" height="220" alt="image" src="https://github.com/user-attachments/assets/599e300a-3731-48fd-9708-cf46413a039e" />
+are URL parameters separated by the ampersand (`&`) character.
 
-We can use something called HTTP Header Live extension to capture the traffic that stands out from your machine. In the example above, the highlighted area is the URL. We also see the session ID that the browser attached for us. Without an session ID, you will not be able to add friends list because the server is going to know that you haven't been authenticated. Session ID is created after you made a username and password, and when you come back you bring back the token so you can be authenticated. 
+Because all of the data is visible in the URL, GET requests are generally easier to exploit with CSRF attacks.
 
-## Forge GET Request 
+### POST Requests
 
-<img width="396" height="256" alt="image" src="https://github.com/user-attachments/assets/d827b3d5-8a99-4525-9213-c02b94450ada" />
+![POST Request Format](https://github.com/user-attachments/assets/22cc38ae-f61a-47d4-9c9c-0c5f86b2033b)
 
-How do we forge our request? We need to create an inage attack and put the URL and argument in the source attribute. Now, we need to trick the user (victim) and come to this website. As soon as the click on it, this page will be brought to their computer. Once the browser sees the image tag, they will send out the request. The victim need to have an active session for this to work.
+With a **POST** request, the request parameters are **not** included in the URL.
 
+Instead, an HTTP POST request consists of:
 
+- The request URL
+- HTTP headers
+- A message body containing the submitted data
+
+Since the parameters are stored in the body of the request rather than the URL, forging POST requests typically requires additional techniques compared to GET requests.
+
+---
+
+## Why GET Requests Are Easier to Exploit
+
+Because a GET request contains all of its data inside the URL, attackers can trigger one simply by embedding the URL inside common HTML elements.
+
+![GET-Based CSRF Attack](https://github.com/user-attachments/assets/425bb6cb-bcaf-4544-8444-db6fa9ba16c2)
+
+For example, elements such as:
+
+- `<img>`
+- `<iframe>`
+
+automatically cause the browser to issue a GET request when the page loads.
+
+If the `src` attribute points to a vulnerable URL containing the required parameters, the browser immediately sends the request without requiring any user interaction.
+
+---
+
+# The Add-Friend HTTP Request
+
+The target application in this lab is an open-source social networking website.
+
+Although the application normally includes protections against CSRF attacks, those defenses have been intentionally disabled so the attack can be demonstrated.
+
+![Add Friend Request](https://github.com/user-attachments/assets/b0b554a5-2fae-44e8-a340-a4d79e912465)
+
+The goal of the attack is to add the attacker to a victim's friend list without the victim's knowledge or consent.
+
+Under normal circumstances:
+
+1. Alice logs into the social network.
+2. Alice clicks **Add Friend** on Bob's profile.
+3. The browser sends an HTTP GET request containing the required parameters.
+4. The server processes the request and adds Bob as Alice's friend.
+
+A CSRF attack simply reproduces this same request.
+
+If an attacker can cause Alice's browser to send the identical HTTP request, the server cannot distinguish it from a legitimate request because the browser automatically includes Alice's authenticated session cookie.
+
+The only challenge for the attacker is determining exactly what HTTP request the application sends.
+
+---
+
+## Capturing the HTTP Request
+
+![Captured HTTP Request](https://github.com/user-attachments/assets/599e300a-3731-48fd-9708-cf46413a039e)
+
+To reproduce the request, we first inspect the network traffic generated when clicking the **Add Friend** button.
+
+This can be done using browser developer tools or browser extensions such as **HTTP Header Live**.
+
+The captured request reveals:
+
+- The target URL
+- All required URL parameters
+- The HTTP method (GET)
+- The session cookie automatically attached by the browser
+
+The session cookie is especially important because it proves the user has already authenticated.
+
+The attacker never needs to know or steal the session ID. As long as the victim is logged in, the browser automatically includes it in every request sent to the target website.
+
+---
+
+# Forging the GET Request
+
+![Forged GET Request](https://github.com/user-attachments/assets/d827b3d5-8a99-4525-9213-c02b94450ada)
+
+Once the attacker knows the correct URL and parameters, creating the CSRF attack is straightforward.
+
+The malicious webpage simply embeds the forged URL inside an HTML element such as an image:
+
+```html
+<img src="http://target-website.com/action?parameter=value">
+```
+
+When the victim visits the malicious webpage:
+
+1. The browser loads the page.
+2. The browser encounters the `<img>` element.
+3. It automatically sends the GET request specified in the `src` attribute.
+4. The victim's authenticated session cookie is attached automatically.
+5. The target server processes the request as though it came directly from the victim.
+
+For the attack to succeed, the victim must already have an active authenticated session with the target website.
