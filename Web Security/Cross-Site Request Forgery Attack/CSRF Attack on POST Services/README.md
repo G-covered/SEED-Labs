@@ -160,3 +160,199 @@ From the victim's perspective, nothing appears unusual because the form is hidde
 If the victim is already logged into the target website, the browser automatically attaches the authenticated session cookie when submitting the POST request.
 
 As a result, the target server processes the request as though it were submitted directly by the victim, allowing the attacker to modify the victim's profile without their knowledge.
+
+<br>
+<br>
+<br>
+<br>
+
+# CSRF Attack - HTTP POST (Modify Profile)
+
+## Overview
+
+This portion of the SEED CSRF Lab demonstrates how an attacker can forge an **HTTP POST** request to modify an authenticated user's profile without their knowledge.
+
+Unlike the previous GET request attack, this attack recreates the legitimate profile update request using a hidden HTML form that automatically submits itself when the victim visits the attacker's webpage.
+
+---
+
+# Objective
+
+Modify the victim's profile information by creating a malicious webpage that automatically submits an HTTP POST request to the Elgg server.
+
+---
+
+# Capturing the Legitimate Request
+
+Before constructing the attack, I first captured the legitimate profile update request.
+
+Using **Firefox Developer Tools (Network tab)**, I edited my profile and clicked **Save** while monitoring the generated HTTP requests.
+
+The captured request showed:
+
+**Request Method**
+
+```text
+POST
+```
+
+**Request URL**
+
+```text
+http://www.seed-server.com/action/profile/edit
+```
+
+The request contained several form parameters, including:
+
+```text
+name
+description
+briefdescription
+location
+interests
+skills
+contactemail
+phone
+mobile
+website
+twitter
+guid
+```
+
+It also included the following CSRF protection parameters:
+
+```text
+__elgg_token
+__elgg_ts
+```
+
+For this portion of the lab, these parameters were intentionally ignored as instructed because they are part of Elgg's CSRF defense mechanism.
+
+---
+
+# Attack Construction
+
+The attacker webpage used JavaScript to dynamically create a hidden HTML form.
+
+Hidden input fields were added to the form containing the profile information that would be submitted to the server.
+
+Once the page loaded, the form automatically submitted itself without requiring any interaction from the victim.
+
+The form was submitted to:
+
+```text
+http://www.seed-server.com/action/profile/edit
+```
+
+using the HTTP POST method.
+
+---
+
+# Attack Flow
+
+```text
+Victim logs into Elgg
+          │
+          ▼
+Victim visits attacker webpage
+          │
+          ▼
+JavaScript creates a hidden HTML form
+          │
+          ▼
+Hidden profile fields are inserted
+          │
+          ▼
+Form automatically submits
+          │
+          ▼
+Elgg processes the POST request
+          │
+          ▼
+Victim's profile is modified
+```
+
+---
+
+# Results
+
+After visiting the attacker's webpage while logged into Elgg:
+
+- The hidden form was automatically submitted.
+- The forged POST request was accepted by the server.
+- The victim's profile information was successfully modified without manually editing the profile.
+
+---
+
+# Challenges Encountered
+
+## Capturing the POST Request
+
+Unlike the GET attack, constructing the POST request required identifying all of the form fields submitted by Elgg.
+
+### Resolution
+
+Used Firefox Developer Tools to inspect the legitimate POST request generated when updating a profile and recreated the required form fields.
+
+---
+
+## Browser Cache
+
+While testing the attack, Firefox repeatedly loaded an outdated version of `editprofile.html`, causing the browser to execute old JavaScript code.
+
+### Resolution
+
+Opened the page using a Private Browsing window to verify the updated file.
+
+After confirming the issue was caused by browser caching, I disabled the browser cache while developing and used hard refreshes to ensure the latest version of the attacker page was loaded.
+
+---
+
+# Security Impact
+
+If an application does not properly defend against CSRF attacks, an attacker can cause authenticated users to unknowingly modify their own account information simply by visiting a malicious webpage.
+
+Potential consequences include:
+
+- Modifying profile information
+- Changing account settings
+- Updating contact information
+- Performing unauthorized actions while authenticated
+
+---
+
+# Defensive Measures
+
+Modern web applications commonly defend against CSRF attacks by implementing:
+
+- CSRF Tokens
+- SameSite Cookie attributes
+- Origin header validation
+- Referer header validation
+- User confirmation for sensitive operations
+
+---
+
+# Key Takeaways
+
+- HTTP POST requests can be forged just as easily as GET requests when proper protections are absent.
+- Firefox Developer Tools are valuable for capturing and analyzing legitimate HTTP requests.
+- Browser caching can interfere with testing web security attacks.
+- CSRF tokens provide an effective defense by preventing forged requests from being accepted.
+- Understanding how legitimate requests are structured is essential when analyzing or testing web application security.
+
+---
+
+# Skills Demonstrated
+
+- Cross-Site Request Forgery (CSRF)
+- HTTP POST Requests
+- Web Application Security
+- Firefox Developer Tools
+- Session Analysis
+- JavaScript
+- HTML Forms
+- Docker
+- Linux
+- Security Testing
+- Vulnerability Analysis
