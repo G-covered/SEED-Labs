@@ -304,7 +304,7 @@ While testing the attack, Firefox repeatedly loaded an outdated version of `edit
 
 Opened the page using a Private Browsing window to verify the updated file.
 
-After confirming the issue was caused by browser caching, I disabled the browser cache while developing and used hard refreshes to ensure the latest version of the attacker page was loaded.
+After confirming the issue was caused by browser caching, I disabled the browser cache while developing and cleared browser cookies to ensure the latest version of the attacker page was loaded.
 
 ---
 
