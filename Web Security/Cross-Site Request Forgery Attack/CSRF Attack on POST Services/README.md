@@ -201,6 +201,10 @@ POST
 ```text
 http://www.seed-server.com/action/profile/edit
 ```
+<img width="754" height="174" alt="Screenshot 2026-07-31 133333" src="https://github.com/user-attachments/assets/59658994-6161-485a-8104-389f80a3f66a" />
+
+<br>
+<br>
 
 The request contained several form parameters, including:
 
@@ -275,6 +279,11 @@ Victim's profile is modified
 ---
 
 # Results
+### Before visiting the attacker's webpage:
+<img width="387" height="307" alt="image" src="https://github.com/user-attachments/assets/67636f4e-c16f-4c25-8344-ed7de81f04f3" />
+
+### Aftermath
+<img width="435" height="306" alt="image" src="https://github.com/user-attachments/assets/adec596a-251a-406e-be73-dffe4c44d4ad" />
 
 After visiting the attacker's webpage while logged into Elgg:
 
